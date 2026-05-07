@@ -512,27 +512,34 @@
                 box-shadow: var(--shadow-lg), 0 0 36px rgba(255, 107, 53, 0.45);
             }
         }
-
-        /* Section Title */
-        .section-title {
-            font-weight: 800;
-            font-size: 1.15rem;
-            margin: 6px 0 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        /* Search */
+        .search-input-wrap {
+            position: relative;
+            margin-bottom: 16px;
         }
-        .section-title .icon-circle {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ff6b35, #ff4757);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 0.9rem;
-            box-shadow: var(--shadow-md);
+        .search-input-wrap input {
+            width: 100%;
+            padding: 15px 20px 15px 48px;
+            border-radius: 28px;
+            border: 2px solid #f0e8e0;
+            font-family: var(--font);
+            font-size: 0.95rem;
+            background: #fff;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .search-input-wrap input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 6px rgba(255, 107, 53, 0.06), var(--shadow-md);
+        }
+        .search-input-wrap i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-lighter);
+            font-size: 1.1rem;
         }
 
         /* Product Grid */
@@ -945,6 +952,68 @@
             50% {
                 box-shadow: 0 8px 34px rgba(255, 107, 53, 0.65);
             }
+        }
+
+        /* Menu Modal */
+        .menu-modal-content {
+            max-width: 370px;
+        }
+        .menu-modal-content a,
+        .menu-modal-content button {
+            display: block;
+            width: 100%;
+            padding: 15px 18px;
+            text-align: left;
+            background: none;
+            border: none;
+            font-family: var(--font);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 14px;
+            transition: var(--transition);
+            color: var(--text);
+            text-decoration: none;
+        }
+        .menu-modal-content a:hover,
+        .menu-modal-content button:hover {
+            background: #fef5f0;
+            padding-left: 22px;
+        }
+        .menu-modal-content hr {
+            border: none;
+            border-top: 1px solid #f0e8e0;
+            margin: 8px 0;
+        }
+
+        /* Search */
+        .search-input-wrap {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        .search-input-wrap input {
+            width: 100%;
+            padding: 15px 20px 15px 48px;
+            border-radius: 28px;
+            border: 2px solid #f0e8e0;
+            font-family: var(--font);
+            font-size: 0.95rem;
+            background: #fff;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .search-input-wrap input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 6px rgba(255, 107, 53, 0.06), var(--shadow-md);
+        }
+        .search-input-wrap i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-lighter);
+            font-size: 1.1rem;
         }
 
         /* Order card */
@@ -1462,12 +1531,7 @@
         let currentUser = null;
         let allProducts = [];
         let currentCategory = 'All';
-        let heroSlides = [
-            { type: 'gradient', emoji: '🍕', title: 'Hot Pizzas!', subtitle: 'Fresh from the oven', badge: '🔥 Free Delivery on 1st Order' },
-            { type: 'gradient', emoji: '🍔', title: 'Juicy Burgers!', subtitle: 'Grilled to perfection', badge: '⭐ Top Rated Restaurants' },
-            { type: 'gradient', emoji: '🍣', title: 'Sushi Delights!', subtitle: 'Fresh rolls daily', badge: '🚀 30 Min Delivery' },
-            { type: 'gradient', emoji: '🌮', title: 'Taco Fiesta!', subtitle: 'Mexican flavors', badge: '💥 Buy 1 Get 1 Free' },
-        ];
+        let heroSlides = [];  
         let heroIndex = 0;
         let heroInterval = null;
         let localCart = [];
@@ -1510,56 +1574,91 @@
 
         // Fetch slider images from Firebase and merge with default slides
         async function loadHeroSlides() {
-            try {
-                const snap = await get(ref(db, 'sliderImages'));
-                if (snap.exists()) {
-                    const images = Object.values(snap.val());
-                    const imageSlides = images.map(img => ({
-                        type: 'image',
-                        url: img.downloadURL
-                    }));
-                    // Prepend dynamic images, keep some defaults at end
-                    heroSlides = [...imageSlides, ...heroSlides.slice(0, 2)];
-                }
-            } catch (e) {
-                console.warn('Failed to load slider images:', e);
-            }
-            renderHero();
-            resetHeroInterval();
-        }
-
-        function renderHero() {
-            const banner = $('#hero-banner');
-            const content = $('#hero-content');
-            const dots = $('#hero-dots');
-            const slide = heroSlides[heroIndex];
-            if (!slide) return;
-            if (slide.type === 'image') {
-                banner.style.backgroundImage = `url(${slide.url})`;
-                banner.style.background = 'none'; // remove gradient
-                content.innerHTML = `
-                    <span class="hero-emoji" style="display:none;"></span>
-                    <div class="hero-title">Delicious Deals!</div>
-                    <div class="hero-subtitle">Order now & enjoy</div>
-                    <span class="hero-badge">🚀 Fast Delivery</span>
-                `;
-            } else {
-                banner.style.backgroundImage = '';
-                banner.style.background = 'linear-gradient(135deg, #ff6b35, #ff4757, #ffb347)';
-                content.innerHTML = `
-                    <span class="hero-emoji">${slide.emoji}</span>
-                    <div class="hero-title">${slide.title}</div>
-                    <div class="hero-subtitle">${slide.subtitle}</div>
-                    <span class="hero-badge">${slide.badge}</span>
-                `;
-            }
-            dots.innerHTML = heroSlides.map((_, i) => `<span class="hero-dot${i===heroIndex?' active':''}" data-index="${i}"></span>`).join('');
-            dots.querySelectorAll('.hero-dot').forEach(d => d.addEventListener('click', () => {
-                heroIndex = parseInt(d.dataset.index);
-                renderHero();
-                resetHeroInterval();
+    heroSlides = [];  // start fresh every time
+    try {
+        const snap = await get(ref(db, 'sliderImages'));
+        if (snap.exists()) {
+            const images = Object.values(snap.val());
+            heroSlides = images.map(img => ({
+                type: 'image',
+                url: img.downloadURL   // make sure this matches your Firebase field
             }));
+            console.log('📸 Loaded banner images:', heroSlides.length);
+        } else {
+            console.log('⚠️ No slider images found in Firebase.');
         }
+    } catch (e) {
+        console.error('Failed to load slider images:', e);
+    }
+
+    // Only start the hero rotation if we have slides
+    if (heroSlides.length > 0) {
+        heroIndex = 0;
+        renderHero();
+        resetHeroInterval();
+    } else {
+        // No images – hide the banner area or show a placeholder
+        $('#hero-banner').style.display = 'none';
+        if (heroInterval) clearInterval(heroInterval);
+    }
+}
+
+
+    function renderHero() {
+    const banner = $('#hero-banner');
+    const content = $('#hero-content');
+    const dots = $('#hero-dots');
+    const slide = heroSlides[heroIndex];
+    if (!slide) return;
+
+    // ---- DEBUG: log current slide ----
+    console.log(`🖼️ Rendering slide ${heroIndex}:`, slide);
+
+    if (slide.type === 'image') {
+        // Stop the gradient keyframe animation (prevents position shifting)
+        banner.style.animation = 'none';
+        // Set the image as background – shorthand covers all background properties
+        banner.style.background = `url("${slide.url}") center/cover no-repeat`;
+        // Fallback background color in case image fails (makes container visible)
+        banner.style.backgroundColor = '#f0e0d0';  // <-- you can remove this later
+
+        // Preload test: log success/failure
+        const testImg = new Image();
+        testImg.onload = () => console.log('✅ Banner image loaded:', slide.url);
+        testImg.onerror = () => console.error('❌ Banner image FAILED to load:', slide.url);
+        testImg.src = slide.url;
+
+        content.innerHTML = `
+            <span class="hero-emoji" style="display:none;"></span>
+            <div class="hero-title">Delicious Deals!</div>
+            <div class="hero-subtitle">Order now & enjoy</div>
+            <span class="hero-badge">🚀 Fast Delivery</span>
+        `;
+    } else {
+        // Restore the animated gradient
+        banner.style.animation = 'heroGradient 6s ease infinite';
+        banner.style.background = 'linear-gradient(135deg, #ff6b35, #ff4757, #ffb347)';
+        banner.style.backgroundColor = '';  // remove fallback
+
+        content.innerHTML = `
+            <span class="hero-emoji">${slide.emoji}</span>
+            <div class="hero-title">${slide.title}</div>
+            <div class="hero-subtitle">${slide.subtitle}</div>
+            <span class="hero-badge">${slide.badge}</span>
+        `;
+    }
+
+    // Dots (unchanged)
+    dots.innerHTML = heroSlides.map((_, i) =>
+        `<span class="hero-dot${i===heroIndex?' active':''}" data-index="${i}"></span>`
+    ).join('');
+
+    dots.querySelectorAll('.hero-dot').forEach(d => d.addEventListener('click', () => {
+        heroIndex = parseInt(d.dataset.index);
+        renderHero();
+        resetHeroInterval();
+    }));
+}
 
         function rotateHero() {
             heroIndex = (heroIndex + 1) % heroSlides.length;
