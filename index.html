@@ -1603,52 +1603,39 @@
     }
 }
 
-
-    function renderHero() {
+function renderHero() {
     const banner = $('#hero-banner');
-    const content = $('#hero-content');
     const dots = $('#hero-dots');
-    const slide = heroSlides[heroIndex];
-    if (!slide) return;
 
-    // ---- DEBUG: log current slide ----
-    console.log(`🖼️ Rendering slide ${heroIndex}:`, slide);
-
-    if (slide.type === 'image') {
-        // Stop the gradient keyframe animation (prevents position shifting)
-        banner.style.animation = 'none';
-        // Set the image as background – shorthand covers all background properties
-        banner.style.background = `url("${slide.url}") center/cover no-repeat`;
-        // Fallback background color in case image fails (makes container visible)
-        banner.style.backgroundColor = '#f0e0d0';  // <-- you can remove this later
-
-        // Preload test: log success/failure
-        const testImg = new Image();
-        testImg.onload = () => console.log('✅ Banner image loaded:', slide.url);
-        testImg.onerror = () => console.error('❌ Banner image FAILED to load:', slide.url);
-        testImg.src = slide.url;
-
-        content.innerHTML = `
-            <span class="hero-emoji" style="display:none;"></span>
-            <div class="hero-title">Delicious Deals!</div>
-            <div class="hero-subtitle">Order now & enjoy</div>
-            <span class="hero-badge">🚀 Fast Delivery</span>
-        `;
-    } else {
-        // Restore the animated gradient
-        banner.style.animation = 'heroGradient 6s ease infinite';
-        banner.style.background = 'linear-gradient(135deg, #ff6b35, #ff4757, #ffb347)';
-        banner.style.backgroundColor = '';  // remove fallback
-
-        content.innerHTML = `
-            <span class="hero-emoji">${slide.emoji}</span>
-            <div class="hero-title">${slide.title}</div>
-            <div class="hero-subtitle">${slide.subtitle}</div>
-            <span class="hero-badge">${slide.badge}</span>
-        `;
+    if (heroSlides.length === 0) {
+        // No slides available – hide everything
+        banner.style.display = 'none';
+        dots.innerHTML = '';
+        return;
     }
 
-    // Dots (unchanged)
+    // Make banner visible (in case it was hidden)
+    banner.style.display = '';
+
+    const slide = heroSlides[heroIndex];
+    const content = $('#hero-content');
+
+    // Stop any gradient animation
+    banner.style.animation = 'none';
+
+    // Set background image from the uploaded URL
+    banner.style.background = `url("${slide.url}") center/cover no-repeat`;
+    banner.style.backgroundColor = '';  // optional fallback color can be removed later
+
+    // Overlay text (you can later make this dynamic from admin)
+    content.innerHTML = `
+        <span class="hero-emoji" style="display:none;"></span>
+        <div class="hero-title">Delicious Deals!</div>
+        <div class="hero-subtitle">Order now & enjoy</div>
+        <span class="hero-badge">🚀 Fast Delivery</span>
+    `;
+
+    // Update navigation dots
     dots.innerHTML = heroSlides.map((_, i) =>
         `<span class="hero-dot${i===heroIndex?' active':''}" data-index="${i}"></span>`
     ).join('');
@@ -1659,6 +1646,13 @@
         resetHeroInterval();
     }));
 }
+
+
+
+
+
+
+
 
         function rotateHero() {
             heroIndex = (heroIndex + 1) % heroSlides.length;
