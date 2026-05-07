@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+there orders section ther add colum phonumber ==<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -584,7 +584,7 @@
         <!-- Orders -->
         <div class="page-panel" id="panel-orders">
             <h2 class="panel-title">🛒 Orders</h2>
-            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Address</th><th>Date</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orders-tbody"></tbody></table></div>
+            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Phonenumber</th><th>Address</th><th>Date</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orders-tbody"></tbody></table></div>
         </div>
 
         <!-- Slider -->
@@ -859,6 +859,7 @@
                     <td>${(o.orderId || o.oid).slice(-8)}</td>
                     <td>${o.shippingName || '-'}<br><small style="color:var(--text-lighter);">${o.userEmail || '-'}</small></td>
                     <td>${o.shippingAddress || '-'}</td>
+                    <td>${o.shippingPhone || '-'}</td>
                     <td>${new Date(o.date).toLocaleDateString()}</td>
                     <td>$${parseFloat(o.totalAmount).toFixed(2)}</td>
                     <td>
